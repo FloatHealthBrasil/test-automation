@@ -2,9 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import io
-import json
 import os
 from dotenv import load_dotenv
+from datetime import date, datetime
 
 load_dotenv()
 
@@ -14,16 +14,7 @@ PASSWORD = os.getenv('PASSWORD')
 ICLIPS_LOGIN = f"{BASE_URL}/Login"
 
 ENDPOINTS = [
-    {
-        "path": "/Job/GerarExcel",
-        "params": {},
-        "payload": {}
-    },
-    {
-        "path": "/Proposta/GerarListaExcel",
-        "params": {},
-        "payload": {}
-    },
+    
     {
         "path": "/Lancamento/GerarExcel",
         "params": {
@@ -41,59 +32,206 @@ ENDPOINTS = [
         },
         "payload": {
             "grid": {
-                "gridControlArray": [
-                    {"Id": "select2Caixa", "Value": ""},
-                    {"Id": "filtro-busca", "Value": ""},
-                    {"Id": "filtro-busca-label", "Value": "Busca avançada"},
-                    {"Id": "TipoInt", "Value": "1"},
-                    {"Id": "TipoInt-text", "Value": "Entrada"},
-                    {"Id": "filtro-periodo2-inicio", "Value": ""},
-                    {"Id": "filtro-periodo2-inicio-label", "Value": "A Partir De"},
-                    {"Id": "filtro-periodo2-fim", "Value": ""},
-                    {"Id": "filtro-periodo2-fim-label", "Value": "Até"},
-                    {"Id": "filtro-periodoCompetencia-inicio", "Value": ""},
-                    {"Id": "filtro-periodoCompetencia-inicio-label", "Value": "A Partir De"},
-                    {"Id": "filtro-periodoCompetencia-fim", "Value": ""},
-                    {"Id": "filtro-periodoCompetencia-fim-label", "Value": "Até"},
-                    {"Id": "IdCaixa", "Value": ""},
-                    {"Id": "IdCaixa-label", "Value": "Conta"},
-                    {"Id": "IdCategoriaLancamento", "Value": ""},
-                    {"Id": "IdCategoriaLancamento-label", "Value": "Subcategoria"},
-                    {"Id": "IdCentroCusto", "Value": ""},
-                    {"Id": "IdCentroCusto-label", "Value": "Centro de Custo"},
-                    {"Id": "ValorApartirDec", "Value": ""},
-                    {"Id": "ValorApartirDec-label", "Value": "Valor a Partir"},
-                    {"Id": "ValorAteDec", "Value": ""},
-                    {"Id": "ValorAteDec-label", "Value": "Valor Até"},
-                    {"Id": "CondicaoInt", "Value": ""},
-                    {"Id": "filtro-tipodocumento", "Value": ""},
-                    {"Id": "filtro-tipodocumento-label", "Value": "Forma de Pagamento"},
-                    {"Id": "filtro-numdocumento", "Value": ""},
-                    {"Id": "filtro-numdocumento-label", "Value": "Número do Documento"},
-                    {"Id": "NotaFiscalStr", "Value": ""},
-                    {"Id": "NotaFiscalStr-label", "Value": "Nota Fiscal"},
-                    {"Id": "possui-nota", "Value": "-1"},
-                    {"Id": "possui-nota-label", "Value": "possui-nota"},
-                    {"Id": "possui-nota-text", "Value": "Mostrar todos os lançamentos"},
-                    {"Id": "TipoUsuarioStr", "Value": ""},
-                    {"Id": "TipoUsuarioStr-label", "Value": "Tipo Usuário"},
-                    {"Id": "IdDestino", "Value": ""},
-                    {"Id": "IdDestino-label", "Value": "Origem/Destino"},
-                    {"Id": "FonteInt", "Value": ""},
-                    {"Id": "FonteInt-label", "Value": "Relação"},
-                    {"Id": "IdFonteBuscaStr", "Value": ""},
-                    {"Id": "IdFonteBuscaStr-label", "Value": "Cod. Relação"},
-                    {"Id": "RelacaoSelect", "Value": ""},
-                    {"Id": "RelacaoSelect-label", "Value": "Nome"},
-                    {"Id": "txt-busca-simples", "Value": ""},
-                    {"Id": "txt-busca-simples-label", "Value": "Busca avançada"},
-                    {"Id": "filtro-periodo-inicio", "Value": ""},
-                    {"Id": "filtro-periodo-inicio-label", "Value": "A Partir De"},
-                    {"Id": "filtro-periodo-fim", "Value": ""},
-                    {"Id": "filtro-periodo-fim-label", "Value": "Até"}
-                ],
-                "ordemPropriedade": "",
-                "ordemDirecaoStr": ""
+            "gridControlArray": [
+                {
+                "Id": "select2Caixa",
+                "Value": ""
+                },
+                {
+                "Id": "filtro-busca",
+                "Value": ""
+                },
+                {
+                "Id": "filtro-busca-label",
+                "Value": "Busca avançada"
+                },
+                {
+                "Id": "TipoInt",
+                "Value": "1,3"
+                },
+                {
+                "Id": "TipoInt-text",
+                "Value": "Entrada, A Receber"
+                },
+                {
+                "Id": "filtro-periodo2-inicio",
+                "Value": date(datetime.now().year, datetime.now().month, 1).strftime('%d/%m/%Y')
+                },
+                {
+                "Id": "filtro-periodo2-inicio-label",
+                "Value": "A Partir De"
+                },
+                {
+                "Id": "filtro-periodo2-fim",
+                "Value": datetime.now().date().strftime('%d/%m/%Y')
+                },
+                {
+                "Id": "filtro-periodo2-fim-label",
+                "Value": "Até"
+                },
+                {
+                "Id": "filtro-periodoCompetencia-inicio",
+                "Value": ""
+                },
+                {
+                "Id": "filtro-periodoCompetencia-inicio-label",
+                "Value": "A Partir De"
+                },
+                {
+                "Id": "filtro-periodoCompetencia-fim",
+                "Value": ""
+                },
+                {
+                "Id": "filtro-periodoCompetencia-fim-label",
+                "Value": "Até"
+                },
+                {
+                "Id": "IdCaixa",
+                "Value": ""
+                },
+                {
+                "Id": "IdCaixa-label",
+                "Value": "Conta"
+                },
+                {
+                "Id": "IdCategoriaLancamento",
+                "Value": ""
+                },
+                {
+                "Id": "IdCategoriaLancamento-label",
+                "Value": "Subcategoria"
+                },
+                {
+                "Id": "IdCentroCusto",
+                "Value": ""
+                },
+                {
+                "Id": "IdCentroCusto-label",
+                "Value": "Centro de Custo"
+                },
+                {
+                "Id": "ValorApartirDec",
+                "Value": ""
+                },
+                {
+                "Id": "ValorApartirDec-label",
+                "Value": "Valor a Partir"
+                },
+                {
+                "Id": "ValorAteDec",
+                "Value": ""
+                },
+                {
+                "Id": "ValorAteDec-label",
+                "Value": "Valor Até"
+                },
+                {
+                "Id": "CondicaoInt",
+                "Value": ""
+                },
+                {
+                "Id": "filtro-tipodocumento",
+                "Value": ""
+                },
+                {
+                "Id": "filtro-tipodocumento-label",
+                "Value": "Forma de Pagamento"
+                },
+                {
+                "Id": "filtro-numdocumento",
+                "Value": ""
+                },
+                {
+                "Id": "filtro-numdocumento-label",
+                "Value": "Número do Documento"
+                },
+                {
+                "Id": "NotaFiscalStr",
+                "Value": ""
+                },
+                {
+                "Id": "NotaFiscalStr-label",
+                "Value": "Nota Fiscal"
+                },
+                {
+                "Id": "possui-nota",
+                "Value": "1"
+                },
+                {
+                "Id": "possui-nota-label",
+                "Value": "possui-nota"
+                },
+                {
+                "Id": "possui-nota-text",
+                "Value": "Sim"
+                },
+                {
+                "Id": "TipoUsuarioStr",
+                "Value": ""
+                },
+                {
+                "Id": "TipoUsuarioStr-label",
+                "Value": "Tipo Usuário"
+                },
+                {
+                "Id": "IdDestino",
+                "Value": ""
+                },
+                {
+                "Id": "IdDestino-label",
+                "Value": "Origem/Destino"
+                },
+                {
+                "Id": "FonteInt",
+                "Value": ""
+                },
+                {
+                "Id": "FonteInt-label",
+                "Value": "Relação"
+                },
+                {
+                "Id": "IdFonteBuscaStr",
+                "Value": ""
+                },
+                {
+                "Id": "IdFonteBuscaStr-label",
+                "Value": "Cod. Relação"
+                },
+                {
+                "Id": "RelacaoSelect",
+                "Value": ""
+                },
+                {
+                "Id": "RelacaoSelect-label",
+                "Value": "Nome"
+                },
+                {
+                "Id": "txt-busca-simples",
+                "Value": ""
+                },
+                {
+                "Id": "txt-busca-simples-label",
+                "Value": "Busca avançada"
+                },
+                {
+                "Id": "filtro-periodo-inicio",
+                "Value": "01/06/2025"
+                },
+                {
+                "Id": "filtro-periodo-inicio-label",
+                "Value": "A Partir De"
+                },
+                {
+                "Id": "filtro-periodo-fim",
+                "Value": "30/06/2025"
+                },
+                {
+                "Id": "filtro-periodo-fim-label",
+                "Value": "Até"
+                }
+            ],
+            "ordemPropriedade": "",
+            "ordemDirecaoStr": ""
             }
         }
     }
