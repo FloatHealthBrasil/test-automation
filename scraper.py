@@ -151,4 +151,4 @@ def run_scraper():
                 raise Exception(f"Erro ao ler o arquivo Excel: {e}")
 
         file_path = f"iclips_data_{i}.csv"
-        df.to_csv(file_path, index=False)
+        df.to_csv(file_path, encoding="utf-8", index=False)
