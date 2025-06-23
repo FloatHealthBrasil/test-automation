@@ -14,7 +14,16 @@ PASSWORD = os.getenv('PASSWORD')
 ICLIPS_LOGIN = f"{BASE_URL}/Login"
 
 ENDPOINTS = [
-    
+    {
+        "path": "/Job/GerarExcel",
+        "params": {},
+        "payload": {}
+    },
+    {
+        "path": "/Proposta/GerarListaExcel",
+        "params": {},
+        "payload": {}
+    },
     {
         "path": "/Lancamento/GerarExcel",
         "params": {
