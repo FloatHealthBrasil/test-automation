@@ -64,7 +64,7 @@ ENDPOINTS = [
                 },
                 {
                 "Id": "filtro-periodo2-inicio",
-                "Value": date(datetime.now().year, datetime.now().month, 1).strftime('%d/%m/%Y')
+                "Value": ""
                 },
                 {
                 "Id": "filtro-periodo2-inicio-label",
@@ -72,7 +72,7 @@ ENDPOINTS = [
                 },
                 {
                 "Id": "filtro-periodo2-fim",
-                "Value": datetime.now().date().strftime('%d/%m/%Y')
+                "Value": ""
                 },
                 {
                 "Id": "filtro-periodo2-fim-label",
@@ -80,7 +80,7 @@ ENDPOINTS = [
                 },
                 {
                 "Id": "filtro-periodoCompetencia-inicio",
-                "Value": ""
+                "Value": date(datetime.now().year, datetime.now().month, 1).strftime('%d/%m/%Y')
                 },
                 {
                 "Id": "filtro-periodoCompetencia-inicio-label",
@@ -88,7 +88,7 @@ ENDPOINTS = [
                 },
                 {
                 "Id": "filtro-periodoCompetencia-fim",
-                "Value": ""
+                "Value": datetime.now().date().strftime('%d/%m/%Y')
                 },
                 {
                 "Id": "filtro-periodoCompetencia-fim-label",
@@ -224,7 +224,7 @@ ENDPOINTS = [
                 },
                 {
                 "Id": "filtro-periodo-inicio",
-                "Value": "01/06/2025"
+                "Value": ""
                 },
                 {
                 "Id": "filtro-periodo-inicio-label",
@@ -232,7 +232,7 @@ ENDPOINTS = [
                 },
                 {
                 "Id": "filtro-periodo-fim",
-                "Value": "30/06/2025"
+                "Value": ""
                 },
                 {
                 "Id": "filtro-periodo-fim-label",
