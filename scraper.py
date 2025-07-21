@@ -5,6 +5,7 @@ import io
 import os
 from dotenv import load_dotenv
 from datetime import date, datetime
+import time
 
 load_dotenv()
 
@@ -283,7 +284,8 @@ def run_scraper():
         excel_url = data.get('Retorno')
         if not excel_url:
             raise Exception("Excel URL não encontrado na resposta!")
-
+        
+        time.sleep(1)
         excel_response = session.get(excel_url)
         excel_response.raise_for_status()
 
