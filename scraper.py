@@ -81,7 +81,7 @@ ENDPOINTS = [
                 },
                 {
                 "Id": "filtro-periodoCompetencia-inicio",
-                "Value": date(datetime.now().year, datetime.now().month, 1).strftime('%d/%m/%Y')
+                "Value": ""
                 },
                 {
                 "Id": "filtro-periodoCompetencia-inicio-label",
@@ -89,7 +89,7 @@ ENDPOINTS = [
                 },
                 {
                 "Id": "filtro-periodoCompetencia-fim",
-                "Value": datetime.now().date().strftime('%d/%m/%Y')
+                "Value": ""
                 },
                 {
                 "Id": "filtro-periodoCompetencia-fim-label",
