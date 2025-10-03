@@ -43,207 +43,207 @@ ENDPOINTS = [
         "payload": {
             "grid": {
             "gridControlArray": [
-               
-                {
-                    "Id": "select2Caixa",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-busca",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-busca-label",
-                    "Value": "Busca avançada"
-                },
-                {
-                    "Id": "TipoInt",
-                    "Value": "1,3"
-                },
-                {
-                    "Id": "TipoInt-text",
-                    "Value": "Entrada, A Receber"
-                },
-                {
-                    "Id": "filtro-periodo2-inicio",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-periodo2-inicio-label",
-                    "Value": "A Partir De"
-                },
-                {
-                    "Id": "filtro-periodo2-fim",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-periodo2-fim-label",
-                    "Value": "Até"
-                },
-                {
-                    "Id": "filtro-periodoCompetencia-inicio",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-periodoCompetencia-inicio-label",
-                    "Value": "A Partir De"
-                },
-                {
-                    "Id": "filtro-periodoCompetencia-fim",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-periodoCompetencia-fim-label",
-                    "Value": "Até"
-                },
-                {
-                    "Id": "IdCaixa",
-                    "Value": ""
-                },
-                {
-                    "Id": "IdCaixa-label",
-                    "Value": "Conta"
-                },
-                {
-                    "Id": "IdCategoriaLancamento",
-                    "Value": "-341"
-                },
-                {
-                    "Id": "IdCategoriaLancamento-label",
-                    "Value": "Subcategoria"
-                },
-                {
-                    "Id": "IdCategoriaLancamento-text",
-                    "Value": "300. Receitas Operacionais"
-                },
-                {
-                    "Id": "IdCentroCusto",
-                    "Value": ""
-                },
-                {
-                    "Id": "IdCentroCusto-label",
-                    "Value": "Centro de Custo"
-                },
-                {
-                    "Id": "ValorApartirDec",
-                    "Value": ""
-                },
-                {
-                    "Id": "ValorApartirDec-label",
-                    "Value": "Valor a Partir"
-                },
-                {
-                    "Id": "ValorAteDec",
-                    "Value": ""
-                },
-                {
-                    "Id": "ValorAteDec-label",
-                    "Value": "Valor Até"
-                },
-                {
-                    "Id": "CondicaoInt",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-tipodocumento",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-tipodocumento-label",
-                    "Value": "Forma de Pagamento"
-                },
-                {
-                    "Id": "filtro-numdocumento",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-numdocumento-label",
-                    "Value": "Número do Documento"
-                },
-                {
-                    "Id": "NotaFiscalStr",
-                    "Value": ""
-                },
-                {
-                    "Id": "NotaFiscalStr-label",
-                    "Value": "Nota Fiscal"
-                },
-                {
-                    "Id": "possui-nota",
-                    "Value": "1"
-                },
-                {
-                    "Id": "possui-nota-label",
-                    "Value": "possui-nota"
-                },
-                {
-                    "Id": "possui-nota-text",
-                    "Value": "Sim"
-                },
-                {
-                    "Id": "TipoUsuarioStr",
-                    "Value": ""
-                },
-                {
-                    "Id": "TipoUsuarioStr-label",
-                    "Value": "Tipo Usuário"
-                },
-                {
-                    "Id": "IdDestino",
-                    "Value": ""
-                },
-                {
-                    "Id": "IdDestino-label",
-                    "Value": "Origem/Destino"
-                },
-                {
-                    "Id": "FonteInt",
-                    "Value": ""
-                },
-                {
-                    "Id": "FonteInt-label",
-                    "Value": "Relação"
-                },
-                {
-                    "Id": "IdFonteBuscaStr",
-                    "Value": ""
-                },
-                {
-                    "Id": "IdFonteBuscaStr-label",
-                    "Value": "Cod. Relação"
-                },
-                {
-                    "Id": "RelacaoSelect",
-                    "Value": ""
-                },
-                {
-                    "Id": "RelacaoSelect-label",
-                    "Value": "Nome"
-                },
-                {
-                    "Id": "txt-busca-simples",
-                    "Value": ""
-                },
-                {
-                    "Id": "txt-busca-simples-label",
-                    "Value": "Busca avançada"
-                },
-                {
-                    "Id": "filtro-periodo-inicio",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-periodo-inicio-label",
-                    "Value": "A Partir De"
-                },
-                {
-                    "Id": "filtro-periodo-fim",
-                    "Value": ""
-                },
-                {
-                    "Id": "filtro-periodo-fim-label",
-                    "Value": "Até"
-                }],
+            {
+                "Id": "select2Caixa",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-busca",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-busca-label",
+                "Value": "Busca avançada"
+            },
+            {
+                "Id": "TipoInt",
+                "Value": "1,3"
+            },
+            {
+                "Id": "TipoInt-text",
+                "Value": "Entrada, A Receber"
+            },
+            {
+                "Id": "filtro-periodo2-inicio",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-periodo2-inicio-label",
+                "Value": "A Partir De"
+            },
+            {
+                "Id": "filtro-periodo2-fim",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-periodo2-fim-label",
+                "Value": "Até"
+            },
+            {
+                "Id": "filtro-periodoCompetencia-inicio",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-periodoCompetencia-inicio-label",
+                "Value": "A Partir De"
+            },
+            {
+                "Id": "filtro-periodoCompetencia-fim",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-periodoCompetencia-fim-label",
+                "Value": "Até"
+            },
+            {
+                "Id": "IdCaixa",
+                "Value": ""
+            },
+            {
+                "Id": "IdCaixa-label",
+                "Value": "Conta"
+            },
+            {
+                "Id": "IdCategoriaLancamento",
+                "Value": "-341"
+            },
+            {
+                "Id": "IdCategoriaLancamento-label",
+                "Value": "Subcategoria"
+            },
+            {
+                "Id": "IdCategoriaLancamento-text",
+                "Value": "300. Receitas Operacionais"
+            },
+            {
+                "Id": "IdCentroCusto",
+                "Value": ""
+            },
+            {
+                "Id": "IdCentroCusto-label",
+                "Value": "Centro de Custo"
+            },
+            {
+                "Id": "ValorApartirDec",
+                "Value": ""
+            },
+            {
+                "Id": "ValorApartirDec-label",
+                "Value": "Valor a Partir"
+            },
+            {
+                "Id": "ValorAteDec",
+                "Value": ""
+            },
+            {
+                "Id": "ValorAteDec-label",
+                "Value": "Valor Até"
+            },
+            {
+                "Id": "CondicaoInt",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-tipodocumento",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-tipodocumento-label",
+                "Value": "Forma de Pagamento"
+            },
+            {
+                "Id": "filtro-numdocumento",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-numdocumento-label",
+                "Value": "Número do Documento"
+            },
+            {
+                "Id": "NotaFiscalStr",
+                "Value": ""
+            },
+            {
+                "Id": "NotaFiscalStr-label",
+                "Value": "Nota Fiscal"
+            },
+            {
+                "Id": "possui-nota",
+                "Value": "-1"
+            },
+            {
+                "Id": "possui-nota-label",
+                "Value": "possui-nota"
+            },
+            {
+                "Id": "possui-nota-text",
+                "Value": "Mostrar todos os lançamentos"
+            },
+            {
+                "Id": "TipoUsuarioStr",
+                "Value": ""
+            },
+            {
+                "Id": "TipoUsuarioStr-label",
+                "Value": "Tipo Usuário"
+            },
+            {
+                "Id": "IdDestino",
+                "Value": ""
+            },
+            {
+                "Id": "IdDestino-label",
+                "Value": "Origem/Destino"
+            },
+            {
+                "Id": "FonteInt",
+                "Value": ""
+            },
+            {
+                "Id": "FonteInt-label",
+                "Value": "Relação"
+            },
+            {
+                "Id": "IdFonteBuscaStr",
+                "Value": ""
+            },
+            {
+                "Id": "IdFonteBuscaStr-label",
+                "Value": "Cod. Relação"
+            },
+            {
+                "Id": "RelacaoSelect",
+                "Value": ""
+            },
+            {
+                "Id": "RelacaoSelect-label",
+                "Value": "Nome"
+            },
+            {
+                "Id": "txt-busca-simples",
+                "Value": ""
+            },
+            {
+                "Id": "txt-busca-simples-label",
+                "Value": "Busca avançada"
+            },
+            {
+                "Id": "filtro-periodo-inicio",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-periodo-inicio-label",
+                "Value": "A Partir De"
+            },
+            {
+                "Id": "filtro-periodo-fim",
+                "Value": ""
+            },
+            {
+                "Id": "filtro-periodo-fim-label",
+                "Value": "Até"
+            }
+        ],
             "ordemPropriedade": "",
             "ordemDirecaoStr": ""
             }
