@@ -6,6 +6,8 @@ import os
 from dotenv import load_dotenv
 from datetime import date, datetime
 import time
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 load_dotenv()
 
@@ -248,6 +250,11 @@ ENDPOINTS = [
             "ordemDirecaoStr": ""
             }
         }
+    },
+    {
+        "path": "/PreFaturamento/GerarListaExcel",
+        "params": {},
+        "payload": {"grid":{"gridControlArray":[{"Id":"txt-busca","Value":""},{"Id":"txt-busca-label","Value":"Palavra-chave"},{"Id":"IdJob","Value":""},{"Id":"IdClienteGrupoStr","Value":""},{"Id":"IdFornecedor","Value":""},{"Id":"IdEmpresa","Value":""},{"Id":"IdProposta","Value":""},{"Id":"TipoInt","Value":""},{"Id":"txt-busca-simples","Value":""},{"Id":"txt-busca-simples-label","Value":"Busca por palavra-chave"}],"ordemPropriedade":"","ordemDirecaoStr":""}}
     }
 ]
 
@@ -255,7 +262,12 @@ def run_scraper():
     if not BASE_URL or not USER or not PASSWORD:
         raise Exception("Faltam variáveis de ambiente obrigatórias!")
     
+    # Configure session with retries and timeouts to be mais resiliente a falhas de rede
     session = requests.Session()
+    retries = Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504], allowed_methods=["HEAD", "GET", "POST"]) 
+    adapter = HTTPAdapter(max_retries=retries)
+    session.mount('https://', adapter)
+    session.mount('http://', adapter)
 
     login_page = session.get(ICLIPS_LOGIN)
     soup = BeautifulSoup(login_page.text, 'html.parser')
@@ -272,7 +284,7 @@ def run_scraper():
         'ManterConectado': 'false'
     }
 
-    response = session.post(ICLIPS_LOGIN, data=login_data)
+    response = session.post(ICLIPS_LOGIN, data=login_data, timeout=30)
     response.raise_for_status()
 
     for i, endpoint in enumerate(ENDPOINTS):
@@ -281,27 +293,193 @@ def run_scraper():
         payload = endpoint.get("payload", {})
 
 
-        response = session.post(url, params=params, json=payload)
+        response = session.post(url, params=params, json=payload, timeout=30)
         response.raise_for_status()
 
         data = response.json()
         excel_url = data.get('Retorno')
         if not excel_url:
             raise Exception("Excel URL não encontrado na resposta!")
-        
+
+        # normaliza excel_url (pode vir relativo)
+        if not excel_url.lower().startswith("http"):
+            excel_url = BASE_URL.rstrip('/') + '/' + excel_url.lstrip('/')
+
         time.sleep(1)
-        excel_response = session.get(excel_url)
-        excel_response.raise_for_status()
+        try:
+            excel_response = session.get(excel_url, timeout=30)
+            excel_response.raise_for_status()
+        except Exception as e:
+            # captura e re-levanta com contexto
+            raise Exception(f"Falha ao baixar o arquivo Excel em {excel_url}: {e}")
 
         csv_file = io.BytesIO(excel_response.content)
-        try:
-            df = pd.read_excel(csv_file, engine='openpyxl')
-        except Exception as e:
+        
+        # Tratativa especial para PreFaturamento
+        if endpoint["path"] == "/PreFaturamento/GerarListaExcel":
             try:
                 csv_file.seek(0)
-                df = pd.read_html(csv_file)[0]
+                content = csv_file.getvalue()
+
+                # Detecta se o conteúdo é HTML (exportado como tabela) ou um arquivo xlsx
+                if b'<table' in content.lower():
+                    html = content.decode('utf-8', errors='ignore')
+                    soup = BeautifulSoup(html, 'html.parser')
+                    table_elements = soup.find_all('table')
+
+                    # Localiza índices dos marcadores 'Custo Interno' e 'Mídia'
+                    start_table_idx = None
+                    end_table_idx = None
+                    for idx, tbl in enumerate(table_elements):
+                        txt = tbl.get_text(separator=' ').replace('\xa0', ' ').strip().lower()
+                        if 'custo interno' in txt:
+                            start_table_idx = idx
+                        if 'mídia' in txt:
+                            end_table_idx = idx
+                            if start_table_idx is not None:
+                                break
+
+                    # Converte todas as tabelas possíveis em DataFrame para análise
+                    df_converted = []  # lista de tuples (idx, table_element, df)
+                    for idx_tbl, tbl in enumerate(table_elements):
+                        try:
+                            df_try = pd.read_html(io.StringIO(str(tbl)), header=None)[0]
+                            df_converted.append((idx_tbl, tbl, df_try))
+                        except Exception:
+                            continue
+
+                    chosen_df = None
+                    # Se encontramos o índice de "Custo Interno", priorizamos a tabela imediatamente após esse marcador
+                    if start_table_idx is not None:
+                        # procura a primeira tabela convertida com índice > start_table_idx que contenha 'proposta' no cabeçalho ou nas primeiras linhas
+                        candidates = [t for t in df_converted if t[0] > start_table_idx and (end_table_idx is None or t[0] < end_table_idx)]
+                        for _, tbl_el, df_try in candidates:
+                            cols = [str(c).lower() for c in df_try.columns]
+                            if any('proposta' in c for c in cols):
+                                chosen_df = df_try
+                                break
+                            maxr = min(3, df_try.shape[0])
+                            found = False
+                            for r in range(maxr):
+                                row_vals = df_try.iloc[r].astype(str).str.lower().tolist()
+                                if any('proposta' in v for v in row_vals):
+                                    chosen_df = df_try
+                                    found = True
+                                    break
+                            if found:
+                                break
+
+                        # se nenhum candidato com 'proposta' foi encontrado, escolhe a primeira tabela após o marcador
+                        if chosen_df is None and candidates:
+                            chosen_df = candidates[0][2]
+
+                    # fallback: procura em todas as tabelas convertidas por 'proposta'
+                    if chosen_df is None:
+                        for _, _, df_try in df_converted:
+                            cols = [str(c).lower() for c in df_try.columns]
+                            if any('proposta' in c for c in cols):
+                                chosen_df = df_try
+                                break
+                            maxr = min(3, df_try.shape[0])
+                            found = False
+                            for r in range(maxr):
+                                row_vals = df_try.iloc[r].astype(str).str.lower().tolist()
+                                if any('proposta' in v for v in row_vals):
+                                    chosen_df = df_try
+                                    found = True
+                                    break
+                            if found:
+                                break
+
+                    if chosen_df is None:
+                        raise Exception("Não foi possível localizar a(s) tabela(s) entre 'Custo Interno' e 'Mídia' nem tabela com 'Proposta'.")
+
+                    df = chosen_df
+
+                    # Preserva explicitamente o header das colunas
+                    header_row = None
+                    max_check_rows = min(6, df.shape[0])
+                    header_keywords = ['proposta', 'custo interno', 'projeto', 'cliente']
+                    for r in range(max_check_rows):
+                        row_vals = df.iloc[r].astype(str).str.lower().tolist()
+                        if any(any(k in v for k in header_keywords) for v in row_vals):
+                            header_row = r
+                            break
+
+                    if header_row is not None:
+                        header = df.iloc[header_row].astype(str).apply(lambda x: x.strip())
+                        df = df[header_row + 1 :].reset_index(drop=True)
+                        df.columns = header
+                    else:
+                        # fallback: se a primeira linha aparenta ser header (contém texto em vez de números), usa-a
+                        first_row = df.iloc[0].astype(str).tolist()
+                        # considera header se pelo menos metade das células na primeira linha não forem numéricas
+                        non_numeric = sum(1 for v in first_row if not v.replace('.', '', 1).replace(',', '', 1).isdigit())
+                        if non_numeric >= max(1, len(first_row)//2):
+                            header = df.iloc[0].astype(str).apply(lambda x: x.strip())
+                            df = df[1:].reset_index(drop=True)
+                            df.columns = header
+                        else:
+                            # não encontrou header explícito; mantém colunas existentes e garante nomes strings
+                            df.columns = [str(c).strip() for c in df.columns]
+
+                    # Garante que todas as colunas sejam strings e sem valores vazios
+                    df.columns = [str(c).strip() if str(c).strip() != '' else f'col_{i}' for i, c in enumerate(df.columns)]
+
+                    # Se for PreFaturamento e não foi detectado header com 'Proposta', força header esperado
+                    if endpoint["path"] == "/PreFaturamento/GerarListaExcel":
+                        cols_lower = [str(c).lower() for c in df.columns]
+                        if not any('proposta' in c for c in cols_lower):
+                            expected = ['Proposta', 'Custo Interno', 'Projeto', 'Título Projeto', 'Cliente', 'Valor', 'Condição de Pagamento', 'Agência', 'Aprovação']
+                            if df.shape[1] >= len(expected):
+                                df.columns = expected + [f'extra_{i}' for i in range(df.shape[1] - len(expected))]
+                            else:
+                                df.columns = expected[:df.shape[1]]
+                else:
+                    # Conteúdo binário; tenta ler como Excel normalmente
+                    try:
+                        csv_file.seek(0)
+                        df = pd.read_excel(csv_file, engine='openpyxl')
+                    except Exception:
+                        # fallback para leitura como HTML caso o excel tenha sido convertido em HTML internamente
+                        csv_file.seek(0)
+                        df = pd.read_html(io.StringIO(csv_file.read().decode('utf-8', errors='ignore')), header=None)[0]
+
             except Exception as e:
-                raise Exception(f"Erro ao ler o arquivo Excel: {e}")
+                raise Exception(f"Erro ao processar o arquivo de Pré-Faturamento: {e}")
+        else:
+            # Processamento padrão para outros endpoints
+                    try:
+                        df = pd.read_excel(csv_file, engine='openpyxl')
+                    except Exception as e:
+                        try:
+                            csv_file.seek(0)
+                            df = pd.read_html(io.StringIO(csv_file.read().decode('utf-8', errors='ignore')), header=None)[0]
+                        except Exception as e:
+                            raise Exception(f"Erro ao ler o arquivo Excel: {e}")
 
         file_path = f"iclips_data_{i}.csv"
-        df.to_csv(file_path, encoding="utf-8", index=False)
+        # Garante que exista um header legível antes de escrever
+        import re
+        cols = [str(c).strip() for c in df.columns]
+        # Se as colunas forem apenas índices numéricos (ex: 0,1,2) ou vazias, tenta extrair header das primeiras linhas
+        if all(re.fullmatch(r"\d+", c) for c in cols) or all(c == '' for c in cols):
+            found_header = False
+            max_check = min(3, df.shape[0])
+            for r in range(max_check):
+                row = df.iloc[r].astype(str).tolist()
+                alpha_count = sum(1 for v in row if re.search(r'[A-Za-zÀ-ÿ]', v))
+                if alpha_count >= max(1, len(row) // 2):
+                    header = [str(x).strip() for x in row]
+                    df = df.drop(df.index[r]).reset_index(drop=True)
+                    df.columns = header
+                    found_header = True
+                    break
+            if not found_header:
+                df.columns = [f'col_{j}' for j in range(df.shape[1])]
+
+        # Escreve explicitamente header para garantir preservação
+        with open(file_path, 'w', encoding='utf-8', newline='') as f:
+            cols = [str(c) for c in df.columns]
+            f.write(','.join(cols) + '\n')
+            df.to_csv(f, index=False, header=False)
