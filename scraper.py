@@ -441,22 +441,50 @@ def run_scraper():
                         csv_file.seek(0)
                         df = pd.read_excel(csv_file, engine='openpyxl')
                     except Exception:
-                        # fallback para leitura como HTML caso o excel tenha sido convertido em HTML internamente
+                        # fallback: tenta detectar HTML preservando acentos
                         csv_file.seek(0)
-                        df = pd.read_html(io.StringIO(csv_file.read().decode('utf-8', errors='ignore')), header=None)[0]
+                        raw = csv_file.read()
+                        if b'<table' in raw.lower():
+                            decoded = None
+                            for enc in ('utf-8', 'cp1252', 'latin-1'):
+                                try:
+                                    decoded = raw.decode(enc)
+                                    break
+                                except UnicodeDecodeError:
+                                    continue
+                            if decoded is None:
+                                decoded = raw.decode('latin-1', errors='replace')
+                            df = pd.read_html(io.StringIO(decoded), header=None)[0]
+                        else:
+                            raise Exception('Arquivo não é Excel suportado nem HTML com <table>.')
 
             except Exception as e:
                 raise Exception(f"Erro ao processar o arquivo de Pré-Faturamento: {e}")
         else:
             # Processamento padrão para outros endpoints
-                    try:
-                        df = pd.read_excel(csv_file, engine='openpyxl')
-                    except Exception as e:
+            try:
+                csv_file.seek(0)
+                df = pd.read_excel(csv_file, engine='openpyxl')
+            except Exception:
+                # fallback: tenta HTML preservando acentos
+                csv_file.seek(0)
+                raw = csv_file.read()
+                if b'<table' in raw.lower():
+                    decoded = None
+                    for enc in ('utf-8', 'cp1252', 'latin-1'):
                         try:
-                            csv_file.seek(0)
-                            df = pd.read_html(io.StringIO(csv_file.read().decode('utf-8', errors='ignore')), header=None)[0]
-                        except Exception as e:
-                            raise Exception(f"Erro ao ler o arquivo Excel: {e}")
+                            decoded = raw.decode(enc)
+                            break
+                        except UnicodeDecodeError:
+                            continue
+                    if decoded is None:
+                        decoded = raw.decode('latin-1', errors='replace')
+                    tables = pd.read_html(io.StringIO(decoded))
+                    if not tables:
+                        raise Exception('Nenhuma tabela encontrada no HTML de fallback.')
+                    df = tables[0]
+                else:
+                    raise Exception('Falha ao ler arquivo: não é XLSX suportado e não contém <table>.')
 
         file_path = f"iclips_data_{i}.csv"
         # Garante que exista um header legível antes de escrever
