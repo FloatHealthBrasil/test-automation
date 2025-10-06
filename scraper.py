@@ -396,32 +396,38 @@ def run_scraper():
 
                     df = chosen_df
 
-                    # Preserva explicitamente o header das colunas
-                    header_row = None
-                    max_check_rows = min(6, df.shape[0])
-                    header_keywords = ['proposta', 'custo interno', 'projeto', 'cliente']
-                    for r in range(max_check_rows):
-                        row_vals = df.iloc[r].astype(str).str.lower().tolist()
-                        if any(any(k in v for k in header_keywords) for v in row_vals):
-                            header_row = r
-                            break
+                    # Verifica se o pandas já detectou o header corretamente
+                    # Olhando se as COLUNAS já têm os nomes esperados
+                    cols_lower = [str(c).lower() for c in df.columns]
+                    header_already_set = any('proposta' in c for c in cols_lower)
+                    
+                    if not header_already_set:
+                        # Só procura header nas linhas se ainda não foi detectado pelo pandas
+                        header_row = None
+                        max_check_rows = min(6, df.shape[0])
+                        header_keywords = ['proposta', 'custo interno', 'projeto', 'cliente']
+                        for r in range(max_check_rows):
+                            row_vals = df.iloc[r].astype(str).str.lower().tolist()
+                            if any(any(k in v for k in header_keywords) for v in row_vals):
+                                header_row = r
+                                break
 
-                    if header_row is not None:
-                        header = df.iloc[header_row].astype(str).apply(lambda x: x.strip())
-                        df = df[header_row + 1 :].reset_index(drop=True)
-                        df.columns = header
-                    else:
-                        # fallback: se a primeira linha aparenta ser header (contém texto em vez de números), usa-a
-                        first_row = df.iloc[0].astype(str).tolist()
-                        # considera header se pelo menos metade das células na primeira linha não forem numéricas
-                        non_numeric = sum(1 for v in first_row if not v.replace('.', '', 1).replace(',', '', 1).isdigit())
-                        if non_numeric >= max(1, len(first_row)//2):
-                            header = df.iloc[0].astype(str).apply(lambda x: x.strip())
-                            df = df[1:].reset_index(drop=True)
+                        if header_row is not None:
+                            header = df.iloc[header_row].astype(str).apply(lambda x: x.strip())
+                            df = df[header_row + 1 :].reset_index(drop=True)
                             df.columns = header
                         else:
-                            # não encontrou header explícito; mantém colunas existentes e garante nomes strings
-                            df.columns = [str(c).strip() for c in df.columns]
+                            # fallback: se a primeira linha aparenta ser header (contém texto em vez de números), usa-a
+                            first_row = df.iloc[0].astype(str).tolist()
+                            # considera header se pelo menos metade das células na primeira linha não forem numéricas
+                            non_numeric = sum(1 for v in first_row if not v.replace('.', '', 1).replace(',', '', 1).isdigit())
+                            if non_numeric >= max(1, len(first_row)//2):
+                                header = df.iloc[0].astype(str).apply(lambda x: x.strip())
+                                df = df[1:].reset_index(drop=True)
+                                df.columns = header
+                            else:
+                                # não encontrou header explícito; mantém colunas existentes e garante nomes strings
+                                df.columns = [str(c).strip() for c in df.columns]
 
                     # Garante que todas as colunas sejam strings e sem valores vazios
                     df.columns = [str(c).strip() if str(c).strip() != '' else f'col_{i}' for i, c in enumerate(df.columns)]
@@ -491,6 +497,7 @@ def run_scraper():
         import re
         cols = [str(c).strip() for c in df.columns]
         # Se as colunas forem apenas índices numéricos (ex: 0,1,2) ou vazias, tenta extrair header das primeiras linhas
+        # IMPORTANTE: Só faz isso se o header ainda não foi processado corretamente
         if all(re.fullmatch(r"\d+", c) for c in cols) or all(c == '' for c in cols):
             found_header = False
             max_check = min(3, df.shape[0])
@@ -505,7 +512,18 @@ def run_scraper():
                     break
             if not found_header:
                 df.columns = [f'col_{j}' for j in range(df.shape[1])]
+        
+        # Verifica se a primeira linha de dados é igual ao header (duplicação)
+        # Se sim, remove essa primeira linha
+        if df.shape[0] > 0:
+            first_row = df.iloc[0].astype(str).str.strip().tolist()
+            header_list = [str(c).strip() for c in df.columns]
+            if first_row == header_list:
+                df = df.iloc[1:].reset_index(drop=True)
 
+        # Remove linhas completamente vazias antes de salvar
+        df = df.dropna(how='all').reset_index(drop=True)
+        
         # Escreve explicitamente header para garantir preservação
         with open(file_path, 'w', encoding='utf-8', newline='') as f:
             cols = [str(c) for c in df.columns]
