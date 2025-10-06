@@ -25,7 +25,9 @@ ENDPOINTS = [
     {
         "path": "/Proposta/GerarListaExcel",
         "params": {},
-        "payload": {}
+        "payload": {
+            "grid":{"gridControlArray":[{"Id":"txt-busca","Value":""},{"Id":"txt-busca-label","Value":"Palavra-chave"},{"Id":"IdJobInt","Value":""},{"Id":"NomeClienteStr","Value":""},{"Id":"IdFuncionario","Value":""},{"Id":"BordereauSaacStr","Value":""},{"Id":"BordereauSaacStr-label","Value":"Saac"},{"Id":"BordereauProcessoStr","Value":""},{"Id":"BordereauProcessoStr-label","Value":"Processo"},{"Id":"BordereauEmpenhoStr","Value":""},{"Id":"BordereauEmpenhoStr-label","Value":"Empenho"},{"Id":"StatusInt","Value":"2"},{"Id":"StatusInt-text","Value":"Aguard. Aprovação"},{"Id":"ExibirValoresInt","Value":"1"},{"Id":"ExibirValoresInt-text","Value":"Cliente"},{"Id":"ValorTotalDec","Value":""},{"Id":"ValorTotalDec-label","Value":"Valor Cobrado"},{"Id":"data-de","Value":""},{"Id":"data-de-label","Value":"Data de Alteração"},{"Id":"data-ate","Value":""},{"Id":"data-ate-label","Value":"Até"},{"Id":"TodosOuSomenteMeus","Value":"0"},{"Id":"TodosOuSomenteMeus-text","Value":"Todos"},{"Id":"txt-busca-simples","Value":""},{"Id":"txt-busca-simples-label","Value":"Busca por palavra-chave"}],"ordemPropriedade":"","ordemDirecaoStr":""}
+        }
     },
     {
         "path": "/Lancamento/GerarExcel",
