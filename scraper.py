@@ -8,8 +8,19 @@ from datetime import date, datetime
 import time
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import html
 
 load_dotenv()
+
+def decode_html_entities(df):
+    """
+    Decodifica entidades HTML em todas as colunas string do DataFrame.
+    Exemplo: &amp; -> &, &lt; -> <, &gt; -> >, &quot; -> "
+    """
+    for col in df.columns:
+        if df[col].dtype == 'object':  # Colunas de texto
+            df[col] = df[col].apply(lambda x: html.unescape(str(x)) if pd.notna(x) else x)
+    return df
 
 BASE_URL = os.getenv('ICLIPS_BASE_URL')
 USER = os.getenv('USER')
@@ -325,8 +336,8 @@ def run_scraper():
 
                 # Detecta se o conteúdo é HTML (exportado como tabela) ou um arquivo xlsx
                 if b'<table' in content.lower():
-                    html = content.decode('utf-8', errors='ignore')
-                    soup = BeautifulSoup(html, 'html.parser')
+                    html_content = content.decode('utf-8', errors='ignore')
+                    soup = BeautifulSoup(html_content, 'html.parser')
                     table_elements = soup.find_all('table')
 
                     # Localiza índices dos marcadores 'Custo Interno' e 'Mídia'
@@ -523,6 +534,12 @@ def run_scraper():
             if first_row == header_list:
                 df = df.iloc[1:].reset_index(drop=True)
 
+        # Decodifica entidades HTML (&amp; -> &, &lt; -> <, etc.)
+        # Primeiro decodifica os nomes das colunas
+        df.columns = [html.unescape(str(c)) for c in df.columns]
+        # Depois decodifica os valores
+        df = decode_html_entities(df)
+        
         # Remove linhas completamente vazias antes de salvar
         df = df.dropna(how='all').reset_index(drop=True)
         
