@@ -22,6 +22,21 @@ def decode_html_entities(df):
             df[col] = df[col].apply(lambda x: html.unescape(str(x)) if pd.notna(x) else x)
     return df
 
+def clean_cpf_cnpj(df):
+    """
+    Remove caracteres especiais (pontos, traços e barras) do campo CPF/CNPJ,
+    deixando apenas números.
+    Exemplo: 46.389.383/0001-32 -> 46389383000132
+    """
+    # Verifica se existe uma coluna CPF/CNPJ (case-insensitive)
+    cpf_cnpj_cols = [col for col in df.columns if 'cpf' in str(col).lower() or 'cnpj' in str(col).lower()]
+    
+    for col in cpf_cnpj_cols:
+        if df[col].dtype == 'object':  # Coluna de texto
+            df[col] = df[col].apply(lambda x: ''.join(filter(str.isdigit, str(x))) if pd.notna(x) and str(x) != 'nan' else x)
+    
+    return df
+
 BASE_URL = os.getenv('ICLIPS_BASE_URL')
 USER = os.getenv('USER')
 PASSWORD = os.getenv('PASSWORD')
@@ -539,6 +554,9 @@ def run_scraper():
         df.columns = [html.unescape(str(c)) for c in df.columns]
         # Depois decodifica os valores
         df = decode_html_entities(df)
+        
+        # Limpa o campo CPF/CNPJ (remove pontos, traços e barras)
+        df = clean_cpf_cnpj(df)
         
         # Remove linhas completamente vazias antes de salvar
         df = df.dropna(how='all').reset_index(drop=True)
