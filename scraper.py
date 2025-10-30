@@ -312,7 +312,7 @@ def run_scraper():
         'ManterConectado': 'false'
     }
 
-    response = session.post(ICLIPS_LOGIN, data=login_data, timeout=30)
+    response = session.post(ICLIPS_LOGIN, data=login_data, timeout=120)
     response.raise_for_status()
 
     for i, endpoint in enumerate(ENDPOINTS):
@@ -321,7 +321,7 @@ def run_scraper():
         payload = endpoint.get("payload", {})
 
 
-        response = session.post(url, params=params, json=payload, timeout=30)
+        response = session.post(url, params=params, json=payload, timeout=120)
         response.raise_for_status()
 
         data = response.json()
@@ -335,7 +335,7 @@ def run_scraper():
 
         time.sleep(1)
         try:
-            excel_response = session.get(excel_url, timeout=30)
+            excel_response = session.get(excel_url, timeout=120)
             excel_response.raise_for_status()
         except Exception as e:
             # captura e re-levanta com contexto
