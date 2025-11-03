@@ -314,20 +314,61 @@ def run_scraper():
 
     response = session.post(ICLIPS_LOGIN, data=login_data, timeout=120)
     response.raise_for_status()
+    
+    # Verifica se o login foi bem-sucedido
+    if 'iClips - Error' in response.text or response.url.endswith('/Account/Login'):
+        print("ERRO: Login falhou!")
+        print(f"URL final: {response.url}")
+        print(f"Primeiros 500 caracteres da resposta:")
+        print(response.text[:500])
+        raise Exception("Falha no login - credenciais inválidas ou CSRF token expirado")
 
     for i, endpoint in enumerate(ENDPOINTS):
         url = BASE_URL + endpoint["path"]
         params = endpoint.get("params", {})
         payload = endpoint.get("payload", {})
 
+        print(f"\nProcessando endpoint {i}: {endpoint['path']}")
+        print(f"URL completa: {url}")
+        print(f"Params: {params}")
+        print(f"Payload: {payload}")
 
-        response = session.post(url, params=params, json=payload, timeout=120)
+        # Headers para requisições AJAX/JSON
+        headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json; charset=utf-8',
+            'Accept': 'application/json, text/javascript, */*; q=0.01'
+        }
+
+        response = session.post(url, params=params, json=payload, headers=headers, timeout=120)
         response.raise_for_status()
 
-        data = response.json()
+        # Remove UTF-8 BOM se presente e tenta fazer parse do JSON
+        response.encoding = 'utf-8-sig'
+        try:
+            data = response.json()
+        except Exception as e:
+            print(f"Erro ao fazer parse do JSON. Status: {response.status_code}")
+            print(f"Content-Type: {response.headers.get('Content-Type', 'N/A')}")
+            print(f"Primeiros 500 caracteres da resposta:")
+            print(response.text[:500])
+            
+            # Salva a resposta HTML completa para debug
+            error_file = f"error_endpoint_{i}.html"
+            with open(error_file, 'w', encoding='utf-8') as f:
+                f.write(response.text)
+            print(f"Resposta completa salva em: {error_file}")
+            
+            # Pula este endpoint e continua com o próximo
+            print(f"AVISO: Pulando endpoint {i} devido a erro")
+            continue
+        
         excel_url = data.get('Retorno')
         if not excel_url:
-            raise Exception("Excel URL não encontrado na resposta!")
+            print(f"AVISO: Excel URL não encontrado na resposta do endpoint {i}")
+            print(f"Resposta JSON: {data}")
+            print(f"Pulando endpoint {i}")
+            continue
 
         # normaliza excel_url (pode vir relativo)
         if not excel_url.lower().startswith("http"):
